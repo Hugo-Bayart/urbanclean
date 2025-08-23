@@ -1,25 +1,20 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+// src/store/orders.jsx
+import { createContext, useContext, useState, useMemo } from "react";
 
-const OrdersContext = createContext();
+const OrdersContext = createContext(null);
 
 export function OrdersProvider({ children }) {
-  const [orders, setOrders] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("uc_orders") || "[]"); }
-    catch { return []; }
-  });
+  const [orders, setOrders] = useState([]);
 
-  useEffect(() => {
-    localStorage.setItem("uc_orders", JSON.stringify(orders));
-  }, [orders]);
+  const addOrder = (order) => setOrders((prev) => [...prev, order]);
+  const clearOrders = () => setOrders([]);
 
-  const addOrder = (order) => setOrders((prev) => [order, ...prev]);
-  const deleteOrder = (id) => setOrders((prev) => prev.filter((o) => o.id !== id));
-
-  return (
-    <OrdersContext.Provider value={{ orders, addOrder, deleteOrder }}>
-      {children}
-    </OrdersContext.Provider>
-  );
+  const value = useMemo(() => ({ orders, addOrder, clearOrders }), [orders]);
+  return <OrdersContext.Provider value={value}>{children}</OrdersContext.Provider>;
 }
 
-export const useOrders = () => useContext(OrdersContext);
+export function useOrders() {
+  const ctx = useContext(OrdersContext);
+  if (!ctx) throw new Error("useOrders must be used within an OrdersProvider");
+  return ctx;
+}
