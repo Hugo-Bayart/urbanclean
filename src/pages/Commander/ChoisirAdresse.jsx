@@ -14,3 +14,5 @@ export default function ChoisirAdresse() {
     </div>
   );
 }
+// dans n'importe quel fichier .jsx
+import Home from "@/pages/Home";
