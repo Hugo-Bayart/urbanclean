@@ -1,8 +1,9 @@
+
 import React, { useContext } from "react";
 import { NavLink, Route, Routes, Navigate, useNavigate } from "react-router-dom";
 
 import HomePage from "@/pages/Home";
-import Reservation from "@/pages/Reservation";
+import Reservation from "@/pages/Reservation"; // si encore utilisé
 import Orders from "@/pages/Orders";
 import Profile from "@/pages/Profile";
 import Login from "@/pages/Login";
@@ -12,7 +13,16 @@ import { AuthProvider, AuthContext } from "@/auth/AuthContext";
 import ProtectedRoute from "@/ProtectedRoute";
 
 import logo from "@/assets/logo.png";
-import { Home, ClipboardList, User2, LogOut } from "lucide-react";
+import { Home, ClipboardList, User2, LogOut, Car } from "lucide-react";
+
+// Flow Commander (pages vides déjà créées)
+import CommanderHome from "@/pages/Commander/CommanderHome";
+import ChoisirVehicule from "@/pages/Commander/ChoisirVehicule";
+import ChoisirService from "@/pages/Commander/ChoisirService";
+import ChoisirAdresse from "@/pages/Commander/ChoisirAdresse";
+import ChoisirDateHeure from "@/pages/Commander/ChoisirDateHeure";
+import Paiement from "@/pages/Commander/Paiement";
+import Confirmation from "@/pages/Commander/Confirmation";
 
 const linkBase = "px-3 py-2 rounded-xl text-sm font-medium";
 const linkActive = "bg-black text-white";
@@ -38,29 +48,27 @@ function AppShell() {
         <header className="hidden md:block sticky top-0 z-20 bg-white/80 backdrop-blur border-b">
           <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
             <img src={logo} alt="UrbanClean" className="h-10 object-contain" />
+
+            {/* NAV PRINCIPALE (sans le bouton Commander) */}
             <nav className="ml-4 flex items-center gap-2">
               <NavLink
                 to="/"
                 end
-                className={({ isActive }) =>
-                  `${linkBase} ${isActive ? linkActive : linkIdle}`
-                }
+                className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
               >
                 Accueil
               </NavLink>
+
               <NavLink
                 to="/orders"
-                className={({ isActive }) =>
-                  `${linkBase} ${isActive ? linkActive : linkIdle}`
-                }
+                className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
               >
                 Mes commandes
               </NavLink>
+
               <NavLink
                 to="/profile"
-                className={({ isActive }) =>
-                  `${linkBase} ${isActive ? linkActive : linkIdle}`
-                }
+                className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
               >
                 Profil
               </NavLink>
@@ -90,6 +98,8 @@ function AppShell() {
               </ProtectedRoute>
             }
           />
+
+          {/* Ancienne page Reservation si tu la gardes */}
           <Route
             path="/reservation"
             element={
@@ -98,6 +108,7 @@ function AppShell() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/orders"
             element={
@@ -111,6 +122,64 @@ function AppShell() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Flow Commander */}
+          <Route
+            path="/commander"
+            element={
+              <ProtectedRoute>
+                <CommanderHome />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/commander/vehicule"
+            element={
+              <ProtectedRoute>
+                <ChoisirVehicule />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/commander/service"
+            element={
+              <ProtectedRoute>
+                <ChoisirService />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/commander/adresse"
+            element={
+              <ProtectedRoute>
+                <ChoisirAdresse />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/commander/date-heure"
+            element={
+              <ProtectedRoute>
+                <ChoisirDateHeure />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/commander/paiement"
+            element={
+              <ProtectedRoute>
+                <Paiement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/commander/confirmation"
+            element={
+              <ProtectedRoute>
+                <Confirmation />
               </ProtectedRoute>
             }
           />
@@ -173,6 +242,13 @@ function MobileTabBar() {
           <Home className="h-5 w-5" />
           <span className="text-xs font-medium">Accueil</span>
         </NavLink>
+
+        {/* Onglet Commander (mobile ↓ on garde) */}
+        <NavLink to="/commander" className={({ isActive }) => `${itemBase} ${isActive ? active : idle}`}>
+          <Car className="h-5 w-5" />
+          <span className="text-xs font-medium">Commander</span>
+        </NavLink>
+
         <NavLink to="/orders" className={({ isActive }) => `${itemBase} ${isActive ? active : idle}`}>
           <ClipboardList className="h-5 w-5" />
           <span className="text-xs font-medium">Commandes</span>
