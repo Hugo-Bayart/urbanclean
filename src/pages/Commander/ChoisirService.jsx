@@ -1,79 +1,78 @@
 // src/pages/Commander/ChoisirService.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Stepper from "../../components/Stepper";
-import { Sparkles, Wrench, AlertTriangle } from "lucide-react";
+import { readDraft, writeDraft } from "@/lib/orderDraft";
+import { Wrench, Brush, AlertTriangle } from "lucide-react";
+// ⚠️ Mets à true seulement si le Stepper n'est PAS rendu par le layout
+const SHOW_STEPPER = false;
+let Stepper;
+if (SHOW_STEPPER) {
+  // import conditionnel pour éviter un import mort si tu ne l'affiches pas
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  Stepper = require("@/components/Stepper").default;
+}
 
 const SERVICES = [
-  {
-    id: "aspiration_simple",
-    label: "Aspiration simple",
-    desc: "Aspiration rapide + surfaces principales.",
-    Icon: Wrench, // tu peux mettre Sparkles si tu préfères
-  },
-  {
-    id: "detailling",
-    label: "Detailling",
-    desc: "Nettoyage intérieur/exterieur minutieux (détails, finitions).",
-    Icon: Sparkles,
-  },
-  {
-    id: "catastrophe",
-    label: "Catastrophe (vomi)",
-    desc: "Intervention lourde (désinfection, taches tenaces).",
-    Icon: AlertTriangle,
-  },
+  { id: "aspiration_simple", label: "Aspiration simple", icon: Wrench,  desc: "Aspiration rapide + surfaces principales." },
+  { id: "detailing",         label: "Detailing",         icon: Brush,   desc: "Intérieur/extérieur minutieux." },
+  { id: "catastrophe",       label: "Catastrophe (vomi)", icon: AlertTriangle, desc: "Désinfection / tâches tenaces." }
 ];
 
 export default function ChoisirService() {
-  const [selected, setSelected] = useState(null);
   const navigate = useNavigate();
+  const [selected, setSelected] = useState(null);
+
+  // Pré-sélection depuis le draft
+  useEffect(() => {
+    const d = readDraft();
+    if (d?.serviceId) setSelected(d.serviceId);
+  }, []);
+
+  const onPick = (id) => {
+    setSelected(id);
+    writeDraft({ serviceId: id }); // on enregistre immédiatement
+  };
 
   const handleNext = () => {
     if (!selected) return;
-    // Sauvegarde légère (à remplacer par un Context si tu préfères)
-    localStorage.setItem("serviceType", selected);
-    navigate("/commander/ChoisirAdresse");
+    // le choix est déjà écrit dans le draft via onPick
+    navigate("/commander/date-heure");
   };
 
   return (
-    <div className="mx-auto max-w-5xl p-4">
-      <Stepper step={3} />
+    <main className="mx-auto max-w-5xl p-4">
+      {SHOW_STEPPER ? <Stepper step={4} /> : null}
+
       <h1 className="text-2xl font-bold mb-2">Choisir le service</h1>
       <p className="text-gray-600 mb-6">
         Sélectionne le niveau de prestation souhaité.
       </p>
 
-      {/* Grille de cartes */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        {SERVICES.map(({ id, label, desc, Icon }) => {
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {SERVICES.map(({ id, label, icon: Icon, desc }) => {
           const active = selected === id;
           return (
             <button
               key={id}
-              onClick={() => setSelected(id)}
-              role="radio"
-              aria-checked={active}
+              type="button"
+              onClick={() => onPick(id)}
               className={[
-                "group text-left w-full rounded-2xl border p-4 transition",
-                "focus:outline-none focus:ring-2 focus:ring-black/50",
+                "rounded-2xl border p-4 text-left transition",
                 active
-                  ? "bg-black text-white border-black shadow-lg"
-                  : "bg-white border-gray-200 hover:border-black/50",
+                  ? "border-black bg-black text-white shadow-lg"
+                  : "border-gray-200 bg-white hover:border-black/50",
               ].join(" ")}
             >
-              <div className="flex items-start gap-3">
+              <div className="flex items-center gap-3">
                 <span
                   className={[
                     "inline-flex items-center justify-center rounded-xl p-3",
                     active ? "bg-white/10" : "bg-gray-100",
                   ].join(" ")}
-                  aria-hidden="true"
                 >
                   <Icon className="h-6 w-6" />
                 </span>
-
-                <div className="flex-1">
+                <div>
                   <div className="font-semibold">{label}</div>
                   <div
                     className={[
@@ -85,36 +84,24 @@ export default function ChoisirService() {
                   </div>
                 </div>
               </div>
-
-              {active && (
-                <span className="mt-3 inline-block text-xs font-medium rounded-full bg-white/20 px-2 py-0.5">
-                  Sélectionné
-                </span>
-              )}
             </button>
           );
         })}
       </div>
 
-      {/* Actions */}
-      <div className="flex gap-2">
+      <div className="mt-8 flex items-center justify-between">
         <Link to="/commander/vehicule" className="px-4 py-2 border rounded-md">
           Précédent
         </Link>
         <button
           type="button"
-          onClick={handleNext}
           disabled={!selected}
-          className={[
-            "px-4 py-2 rounded-md font-semibold",
-            selected
-              ? "bg-black text-white hover:bg-black/90"
-              : "bg-gray-200 text-gray-500 cursor-not-allowed",
-          ].join(" ")}
+          onClick={handleNext}
+          className="px-4 py-2 bg-black text-white rounded-md disabled:opacity-50"
         >
           Suivant
         </button>
       </div>
-    </div>
+    </main>
   );
 }

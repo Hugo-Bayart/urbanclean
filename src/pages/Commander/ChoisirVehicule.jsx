@@ -1,3 +1,4 @@
+// src/pages/Commander/ChoisirVehicule.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Car, CarFront, Truck } from "lucide-react";
@@ -14,9 +15,8 @@ export default function ChoisirVehicule() {
 
   const handleContinue = () => {
     if (!selected) return;
-    // Ici tu pourrais enregistrer le choix dans un context ou localStorage
-    localStorage.setItem("vehiculeType", selected);
-    navigate("/commander/ChoisirVehicule"); // Redirection vers la page suivante
+    // TODO: enregistrer le choix si besoin (context/localStorage)
+    navigate("/commander/service"); // 👈 prochaine étape
   };
 
   return (
@@ -24,12 +24,8 @@ export default function ChoisirVehicule() {
       <h1 className="text-2xl font-extrabold mb-1">Choisir le véhicule</h1>
       <p className="text-gray-600 mb-6">Sélectionne le type de véhicule à laver.</p>
 
-      {/* Grille de cartes cliquables */}
-      <div
-        role="radiogroup"
-        aria-label="Type de véhicule"
-        className="grid grid-cols-1 sm:grid-cols-3 gap-4"
-      >
+      {/* Grille d’options */}
+      <div role="radiogroup" aria-label="Type de véhicule" className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {OPTIONS.map(({ id, label, icon: Icon, description }) => {
           const isActive = selected === id;
           return (
@@ -46,7 +42,6 @@ export default function ChoisirVehicule() {
                   : "border-gray-200 bg-white hover:border-black/50",
               ].join(" ")}
             >
-              {/* Input caché pour l’accessibilité */}
               <input
                 type="radio"
                 name="vehicle"
@@ -69,12 +64,7 @@ export default function ChoisirVehicule() {
 
                 <div className="flex-1">
                   <div className="font-semibold">{label}</div>
-                  <div
-                    className={[
-                      "text-sm",
-                      isActive ? "text-white/80" : "text-gray-600",
-                    ].join(" ")}
-                  >
+                  <div className={["text-sm", isActive ? "text-white/80" : "text-gray-600"].join(" ")}>
                     {description}
                   </div>
                 </div>
@@ -92,11 +82,8 @@ export default function ChoisirVehicule() {
 
       {/* Actions */}
       <div className="mt-8 flex items-center justify-between">
-        <Link
-          to="/commander"
-          className="rounded-xl border px-4 py-2 text-sm font-medium hover:bg-gray-50"
-        >
-          Retour
+        <Link to="/commander/adresse" className="px-4 py-2 border rounded-md">
+          Précédent
         </Link>
 
         <button
@@ -104,13 +91,13 @@ export default function ChoisirVehicule() {
           disabled={!selected}
           onClick={handleContinue}
           className={[
-            "rounded-xl px-4 py-2 text-sm font-semibold",
+            "px-4 py-2 rounded-md",
             selected
-              ? "bg-black text-white hover:bg-black/90"
+              ? "bg-black text-white"
               : "bg-gray-200 text-gray-500 cursor-not-allowed",
           ].join(" ")}
         >
-          Continuer
+          Suivant
         </button>
       </div>
     </main>
